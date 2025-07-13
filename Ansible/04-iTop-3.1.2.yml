@@ -1,0 +1,40 @@
+---
+- name: Set up web server with iTop
+  hosts: all 
+  become: yes  
+  tasks:
+        
+    - name: Download and install iTop (3.1.2)
+      unarchive:
+        src: https://sourceforge.net/projects/itop/files/itop/3.1.2/iTop-3.1.2-14913.zip
+        dest: /var/www/html/
+        remote_src: yes
+        
+    - name: Rename folder
+      shell: mv /var/www/html/web itop
+      args:
+        chdir: /var/www/html/
+    
+    - name: Set ownership and permissions for iTop
+      file:
+        path: /var/www/html/itop
+        state: directory
+        owner: www-data
+        group: www-data
+        mode: '0755'
+
+    - name: Ensure AllowOverride All is set in Apache configuration
+      lineinfile:
+        path: /etc/apache2/sites-available/000-default.conf
+        insertafter: 'DocumentRoot /var/www/html'
+        line: |
+          <Directory /var/www/html>
+              AllowOverride All
+          </Directory>
+      notify: Restart Apache
+
+  handlers:
+    - name: Restart Apache
+      service:
+        name: apache2
+        state: restarted

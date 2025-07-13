@@ -1,0 +1,26 @@
+---
+- name: Toolkit
+  hosts: all 
+  become: yes 
+  tasks:
+
+    - name: Download iTop Toolkit
+      get_url:
+        url: https://github.com/Combodo/itop-toolkit-community/archive/refs/tags/3.1.zip
+        dest: /var/www/html/itop/itop_toolkit.zip
+
+    - name: Extract iTop Toolkit
+      unarchive:
+        src: /var/www/html/itop/itop_toolkit.zip
+        dest: /var/www/html/itop/
+        remote_src: yes
+
+    - name: Rename folder
+      shell: mv /var/www/html/itop/itop-toolkit-community-3.1 toolkit
+      args:
+        chdir: /var/www/html/itop/
+        
+    - name: Set permissions folder iTop
+      shell: |
+        chown -R www-data:www-data /var/www/html/itop
+        chmod -R 755 /var/www/html/itop

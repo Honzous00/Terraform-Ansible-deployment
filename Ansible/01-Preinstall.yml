@@ -1,0 +1,20 @@
+---
+- name: Preinstall server
+  hosts: all
+  become: yes
+  tasks:
+    - name: Update
+      apt:
+        update_cache: yes
+    
+    - name: Preinstall
+      apt:
+        name:
+          - lsb-release
+          - apt-transport-https
+          - ca-certificates
+          - wget
+          - gnupg
+          - unzip
+          - git
+        state: present

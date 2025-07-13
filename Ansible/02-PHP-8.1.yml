@@ -1,0 +1,65 @@
+---
+- name: PHP installation
+  hosts: all
+  become: yes
+  vars:
+    php_version: "8.1"  #New PHP w/o json, cuz its "inside"
+  tasks:
+    - name: Add Sury PHP signing key
+      get_url:
+        url: https://packages.sury.org/php/apt.gpg
+        dest: /etc/apt/trusted.gpg.d/php.gpg
+
+    - name: Add PHP repository from Sury
+      shell: |
+        echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/php.list
+
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+
+    - name: Install Apache2
+      apt:
+        name: apache2
+        state: present
+
+    - name: Install PHP and necessary extensions
+      apt:
+        name:
+          - "php{{ php_version }}"
+          - "php{{ php_version }}-mysql"
+          - "php{{ php_version }}-apcu"
+          - "php{{ php_version }}-ldap"
+          - "php{{ php_version }}-mcrypt"
+          - "php{{ php_version }}-cli"
+          - "php{{ php_version }}-soap"
+          - "php{{ php_version }}-xml"
+          - "php{{ php_version }}-gd"
+          - "php{{ php_version }}-zip"
+          - "php{{ php_version }}-curl"
+          - "php{{ php_version }}-mbstring"
+          - "php{{ php_version }}-imap"
+          - "libapache2-mod-php{{ php_version }}"
+          - "graphviz"
+        state: present
+
+    - name: Set recommended parameters in php.ini
+      lineinfile:
+        path: /etc/php/{{ php_version }}/apache2/php.ini
+        regexp: '^{{ item.key }}'
+        line: '{{ item.key }} = {{ item.value }}'
+      with_items:
+        - { key: 'file_uploads', value: 'On' }
+        - { key: 'upload_max_filesize', value: '20M' }
+        - { key: 'max_execution_time', value: '300' }
+        - { key: 'memory_limit', value: '256M' }
+        - { key: 'post_max_size', value: '32M' }
+        - { key: 'max_input_time', value: '90' }
+        - { key: 'max_input_vars', value: '5000' }
+        - { key: 'date.timezone', value: 'Europe/Prague' }
+
+    - name: Restart Apache
+      service:
+        name: apache2
+        state: restarted
+   
