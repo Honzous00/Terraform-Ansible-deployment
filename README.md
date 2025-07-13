@@ -1,7 +1,3 @@
-Skvěle\! Teď vytvoříme komplexní `README.md` soubor s oběma jazykovými verzemi a všemi důležitými detaily, včetně poznámek k citlivým datům a zmínce o vaší Absolventské práci.
-
------
-
 # Terraform-Ansible-Deployment
 
 ## 🇬🇧 Automated Deployment and Configuration of iTop on Proxmox LXC Containers
